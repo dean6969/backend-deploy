@@ -3,3 +3,6 @@ flask_cors==3.0.10
 Flask-MySQL==1.5.2
 pymysql==1.0.3
 gunicorn==20.1.0
+mysql-connector-python==8.0.33
+pandas==2.0.0
+json5==0.9.6

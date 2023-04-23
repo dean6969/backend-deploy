@@ -24,7 +24,6 @@ with open('states.min.geojson', 'r') as f:
 data2 = data[data.Year == 2000].reset_index(drop= True).round(2)
 
 for i in range(len(data1["features"])):
-    print(data1["features"][i]["properties"]["STATE_NAME"])
     
     data1["features"][i]["properties"]["name"] = data2["State"][i]
     data1["features"][i]["properties"]["density"] = data2["CO2e emissions (tonnes per capita)"][i]
@@ -71,7 +70,6 @@ def receive_string():
 
     string_get = string.get("message")
     # do something with the string
-    print(string.get("message"))
     conn = mysql.connect()
     cur = conn.cursor(pymysql.cursors.DictCursor)
     cur.execute(f"SELECT Model, `Vehicle Class`, ROUND(AVG(`CO2 Emissions(g/km)`),1) AS CO2 FROM `co2_emissions_australia` WHERE Make = '{string_get}' group by Model, `Vehicle Class`")

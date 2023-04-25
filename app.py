@@ -91,38 +91,47 @@ def receive_string2():
     cur.close()
     return jsonify(data)
 
-# @app.route("/search1")
-# def render_data():
-#     string = request.args
-
-#     string_get = string.get("message")
-    
-#     print(string.get("message"))
-    
-#     data2 = data[data.Year == int(string_get)].reset_index(drop= True).round(2)
-    
-#     for i in range(len(data1["features"])):
-    
-#         data1["features"][i]["properties"]["name"] = data2["State"][i]
-#         data1["features"][i]["properties"]["density"] = data2["CO2e emissions (tonnes per capita)"][i]
-    
-#     return data1
-
-@app.route('/receive_state', methods=['GET'])
-def receive_string_data():
+@app.route("/search1")
+def render_data():
     string = request.args
 
     string_get = string.get("message")
-    # do something with the string
+    
     print(string.get("message"))
+    
+    data2 = data[data.Year == int(string_get)].reset_index(drop= True).round(2)
+    
+    for i in range(len(data1["features"])):
+    
+        data1["features"][i]["properties"]["name"] = data2["State"][i]
+        data1["features"][i]["properties"]["density"] = data2["CO2e emissions (tonnes per capita)"][i]
+    
+    return data1
+
+# @app.route('/receive_state', methods=['GET'])
+# def receive_string_data():
+#     string = request.args
+
+#     string_get = string.get("message")
+#     # do something with the string
+#     print(string.get("message"))
+#     conn = mysql.connect()
+#     cur = conn.cursor(pymysql.cursors.DictCursor)
+#     cur.execute(f"SELECT ROUND(`CO2e emissions (tonnes per capita)`,2) AS co2 FROM `state-co2e-emissions` WHERE State = '{string_get}' ORDER BY Year")
+#     data = cur.fetchall()
+    
+#     for i in range(len(data)):
+#         data[i]['co2'] = float(data[i]['co2'])
+        
+#     cur.close()
+#     return jsonify(data)
+
+@app.route("/get_fulldata")
+def get_mysql_data2():
     conn = mysql.connect()
     cur = conn.cursor(pymysql.cursors.DictCursor)
-    cur.execute(f"SELECT ROUND(`CO2e emissions (tonnes per capita)`,2) AS co2 FROM `state-co2e-emissions` WHERE State = '{string_get}' ORDER BY Year")
+    cur.execute(f"SELECT ROUND(`CO2e emissions (tonnes per capita)`,2) AS co2, State, Year FROM `state-co2e-emissions`")
     data = cur.fetchall()
-    
-    for i in range(len(data)):
-        data[i]['co2'] = float(data[i]['co2'])
-        
     cur.close()
     return jsonify(data)
 

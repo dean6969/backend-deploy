@@ -91,22 +91,22 @@ def receive_string2():
     cur.close()
     return jsonify(data)
 
-@app.route("/search1")
-def render_data():
-    string = request.args
+# @app.route("/search1")
+# def render_data():
+#     string = request.args
 
-    string_get = string.get("message")
+#     string_get = string.get("message")
     
-    print(string.get("message"))
+#     print(string.get("message"))
     
-    data2 = data[data.Year == int(string_get)].reset_index(drop= True).round(2)
+#     data2 = data[data.Year == int(string_get)].reset_index(drop= True).round(2)
     
-    for i in range(len(data1["features"])):
+#     for i in range(len(data1["features"])):
     
-        data1["features"][i]["properties"]["name"] = data2["State"][i]
-        data1["features"][i]["properties"]["density"] = data2["CO2e emissions (tonnes per capita)"][i]
+#         data1["features"][i]["properties"]["name"] = data2["State"][i]
+#         data1["features"][i]["properties"]["density"] = data2["CO2e emissions (tonnes per capita)"][i]
     
-    return data1
+#     return data1
 
 @app.route('/receive_state', methods=['GET'])
 def receive_string_data():

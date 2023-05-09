@@ -11,7 +11,7 @@ import json
 
 try:
     mydb = connection.connect(host="database-tp23.cbae3jtimquk.ap-southeast-2.rds.amazonaws.com", database = 'cv_db_7',user="admin", passwd="password",use_pure=True)
-    query = "SELECT * FROM `state-co2e-emissions`"
+    query = "SELECT * FROM `Co2_per_states`"
     data = pd.read_sql(query,mydb)
     mydb.close() #close the connection
 except Exception as e:
@@ -21,12 +21,13 @@ except Exception as e:
 with open('states.min.geojson', 'r') as f:
     data1 = json.load(f)
 
-data2 = data[data.Year == 2000].reset_index(drop= True).round(2)
+data2 = data[data.year == 2000].reset_index(drop= True).round(2)
 
 for i in range(len(data1["features"])):
+    print(data1["features"][i]["properties"]["STATE_NAME"])
     
-    data1["features"][i]["properties"]["name"] = data2["State"][i]
-    data1["features"][i]["properties"]["density"] = data2["CO2e emissions (tonnes per capita)"][i]
+    data1["features"][i]["properties"]["name"] = data2["state"][i]
+    data1["features"][i]["properties"]["density"] = data2["net_co2"][i]
 
 # configuration
 DEBUG = True
@@ -70,6 +71,7 @@ def receive_string():
 
     string_get = string.get("message")
     # do something with the string
+    print(string.get("message"))
     conn = mysql.connect()
     cur = conn.cursor(pymysql.cursors.DictCursor)
     cur.execute(f"SELECT Model, `Vehicle Class`, ROUND(AVG(`CO2 Emissions(g/km)`),1) AS CO2 FROM `co2_emissions_australia` WHERE Make = '{string_get}' group by Model, `Vehicle Class`")
@@ -99,38 +101,47 @@ def render_data():
     
     print(string.get("message"))
     
-    data2 = data[data.Year == int(string_get)].reset_index(drop= True).round(2)
+    data2 = data[data.year == int(string_get)].reset_index(drop= True).round(2)
     
     for i in range(len(data1["features"])):
     
-        data1["features"][i]["properties"]["name"] = data2["State"][i]
-        data1["features"][i]["properties"]["density"] = data2["CO2e emissions (tonnes per capita)"][i]
+        data1["features"][i]["properties"]["name"] = data2["state"][i]
+        data1["features"][i]["properties"]["density"] = data2["net_co2"][i]
     
     return data1
 
-# @app.route('/receive_state', methods=['GET'])
-# def receive_string_data():
-#     string = request.args
+@app.route('/receive_state', methods=['GET'])
+def receive_string_data():
+    string = request.args
 
-#     string_get = string.get("message")
-#     # do something with the string
-#     print(string.get("message"))
-#     conn = mysql.connect()
-#     cur = conn.cursor(pymysql.cursors.DictCursor)
-#     cur.execute(f"SELECT ROUND(`CO2e emissions (tonnes per capita)`,2) AS co2 FROM `state-co2e-emissions` WHERE State = '{string_get}' ORDER BY Year")
-#     data = cur.fetchall()
+    string_get = string.get("message")
+    # do something with the string
+    print(string.get("message"))
+    conn = mysql.connect()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    cur.execute(f"SELECT `net_co2` AS co2 FROM `Co2_per_states` WHERE state = '{string_get}' ORDER BY year")
+    data = cur.fetchall()
     
-#     for i in range(len(data)):
-#         data[i]['co2'] = float(data[i]['co2'])
+    for i in range(len(data)):
+        data[i]['co2'] = float(data[i]['co2'])
         
-#     cur.close()
-#     return jsonify(data)
+    cur.close()
+    return jsonify(data)
 
 @app.route("/get_fulldata")
 def get_mysql_data2():
     conn = mysql.connect()
     cur = conn.cursor(pymysql.cursors.DictCursor)
-    cur.execute(f"SELECT ROUND(`CO2e emissions (tonnes per capita)`,2) AS co2, State, Year FROM `state-co2e-emissions`")
+    cur.execute(f"SELECT `net_co2` AS co2, state, year FROM `Co2_per_states`")
+    data = cur.fetchall()
+    cur.close()
+    return jsonify(data)
+
+@app.route("/get_fulldata1")
+def get_mysql_data3():
+    conn = mysql.connect()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    cur.execute(f"SELECT * FROM `Co2_per_states`")
     data = cur.fetchall()
     cur.close()
     return jsonify(data)

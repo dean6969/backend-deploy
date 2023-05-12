@@ -146,5 +146,13 @@ def get_mysql_data3():
     cur.close()
     return jsonify(data)
 
+@app.route("/get_fulldata2")
+def get_mysql_data4():
+    conn = mysql.connect()
+    cur = conn.cursor(pymysql.cursors.DictCursor)
+    cur.execute(f"SELECT * FROM `carbon-footprint-travel-mode`")
+    data = cur.fetchall()
+    cur.close()
+    return jsonify(data)
 if __name__ == '__main__':
     app.run(host="0.0.0.0")
